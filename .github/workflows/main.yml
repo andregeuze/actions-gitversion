@@ -42,7 +42,7 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           filename: release.zip
-          path: src/*
+          directory: src
 
       - name: Create Release
         id: create_release
