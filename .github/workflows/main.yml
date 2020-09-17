@@ -62,4 +62,3 @@ jobs:
             Changes:
             - ${{ env.COMMIT_MESSAGE }}
           prerelease: ${{ env.IS_PRERELEASE }}
-          draft: true
