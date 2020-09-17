@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  # Pushes will trigger a package build for pre-release
+  # Pull requests will trigger a package build for production
+  push:
+    branches:
+      - feature/*
+      - fix/*
+  pull_request:
+    branches:
+      - main
+
+env:
+  IS_PRERELEASE: ${{ github.event_name == 'push' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.4
+        with:
+          versionSpec: "5.2.x"
+
+      - name: Get version number
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.4
+        with:
+          useConfigFile: "true"
+          configFilePath: "${{ github.workspace }}/gitversion.yml"
+
+      - name: Set environment variables based on target branch
+        run: |
+          echo ::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')
+          echo ::set-env name=COMMIT_MESSAGE::$(git log -1 HEAD --pretty=format:%s)
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.gitversion.outputs.SemVer }}
+          release_name: Release ${{ steps.gitversion.outputs.SemVer }}
+          body: |
+            Version: v ${{ steps.gitversion.outputs.SemVer }}
+            Branch: ${{ env.BRANCH_NAME }}
+            Changes:
+            - ${{ env.COMMIT_MESSAGE }}
+            Website available at: https://staging-srvn.ikwilracen.nu/
+          draft: false
+          prerelease: ${{ env.IS_PRERELEASE }}
