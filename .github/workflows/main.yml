@@ -36,7 +36,7 @@ jobs:
 
       - name: Set environment variables based on target branch
         run: |
-          echo ::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//_/g')
+          echo ::set-env name=BRANCH_NAME::$(echo ${GITHUB_REF#refs/heads/} | sed 's/\//-/g')
           echo ::set-env name=COMMIT_MESSAGE::$(git log -1 HEAD --pretty=format:%s)
 
       - name: Create Release
