@@ -4,7 +4,15 @@ on:
   release:
     types:
       - prereleased
+      - published
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    steps:
+      - run: |
+          echo "Pre-release triggered"
+          echo github.event: ${{ github.event }}
+          echo github.event.release: ${{ github.event.release }}
+          echo github.event.release.prerelease: ${{ github.event.release.prerelease }}
