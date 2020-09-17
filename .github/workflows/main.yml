@@ -38,12 +38,18 @@ jobs:
         run: |
           echo ::set-env name=COMMIT_MESSAGE::$(git log -1 HEAD --pretty=format:%s)
 
+      - name: Archive Output
+        uses: thedoctor0/zip-release@master
+        with:
+          filename: release.zip
+          path: src/**/*
+
       - name: Update Release
         id: update_release
         uses: johnwbyrd/update-release@v1.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: src/**/*
+          files: release.zip
           release: v${{ steps.gitversion.outputs.SemVer }}
           tag: v${{ steps.gitversion.outputs.SemVer }}
           body: |
