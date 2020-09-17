@@ -9,10 +9,13 @@ branches:
     mode: ContinuousDeployment
     tag: ci
     is-mainline: true
-  fix:
+  hotfix(es)?[/]:
     mode: ContinuousDeployment
+    increment: Patch
     tag: fix
-  feature:
+  feature?[/]:
     mode: ContinuousDeployment
+    tag: useBranchName
+    increment: Inherit
 ignore:
   sha: []
