@@ -42,14 +42,14 @@ jobs:
         uses: thedoctor0/zip-release@master
         with:
           filename: release.zip
-          path: src/**/*
+          directory: src
 
       - name: Update Release
         id: update_release
         uses: johnwbyrd/update-release@v1.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: release.zip
+          files: src/release.zip
           release: v${{ steps.gitversion.outputs.SemVer }}
           tag: v${{ steps.gitversion.outputs.SemVer }}
           body: |
