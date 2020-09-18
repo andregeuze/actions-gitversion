@@ -8,7 +8,6 @@ branches:
     regex: (^master$|^origin\/master$|^main$|^origin\/main$)
     tag: ""
     is-mainline: true
-    increment: Minor
   minor:
     regex: "(minor|feature)[/-]"
     increment: Minor
