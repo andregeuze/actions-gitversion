@@ -1,21 +1,14 @@
-name: CI
+name: Continuous Deployment
 
 on:
-  # Pushes will trigger a package build for pre-release
-  # Pull requests will trigger a package build for production
   push:
     branches:
+      - main
       - feature/*
       - hotfix/*
-  pull_request:
-    branches:
-      - main
-
-env:
-  IS_PRERELEASE: ${{ github.event_name == 'push' }}
 
 jobs:
-  build:
+  build_deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,31 +27,25 @@ jobs:
           useConfigFile: "true"
           configFilePath: "${{ github.workspace }}/gitversion.yml"
 
-      - name: Set environment variables based on target branch
+      - name: Set shared variables
         run: |
-          echo ::set-env name=COMMIT_MESSAGE::$(git log -1 HEAD --pretty=format:%s)
+          echo ::set-env name=IS_PRERELEASE::${{ github.ref != 'refs/heads/main' }}
 
-      - name: Archive Output
-        uses: thedoctor0/zip-release@master
-        with:
-          filename: release.zip
-          directory: src
+      - name: Set environment to test
+        if: env.IS_PRERELEASE
+        run: |
+          echo ::set-env name=ENVIRONMENT::test
 
-      - name: Update Release
-        id: update_release
-        uses: johnwbyrd/update-release@v1.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          files: src/release.zip
-          release: v${{ steps.gitversion.outputs.SemVer }}
-          tag: v${{ steps.gitversion.outputs.SemVer }}
-          body: |
-            Version: v${{ steps.gitversion.outputs.SemVer }}
-            Branch name: ${{ steps.gitversion.outputs.EscapedBranchName }}
+      - name: Set environment to live
+        if: env.IS_PRERELEASE == false
+        run: |
+          echo ::set-env name=ENVIRONMENT::live
 
-            InformationalVersion: ${{ steps.gitversion.outputs.InformationalVersion }}
-            FullBuildMetaData: ${{ steps.gitversion.outputs.FullBuildMetaData }}
-
-            Changes:
-            - ${{ env.COMMIT_MESSAGE }}
-          prerelease: ${{ env.IS_PRERELEASE }}
+      - name: Output variables
+        run: |
+          echo Environment: ${{ env.ENVIRONMENT }}
+          echo Pre-release: ${{ env.IS_PRERELEASE }}
+          echo Version: v${{ steps.gitversion.outputs.SemVer }}
+          echo Branch name: ${{ steps.gitversion.outputs.EscapedBranchName }}
+          echo InformationalVersion: ${{ steps.gitversion.outputs.InformationalVersion }}
+          echo FullBuildMetaData: ${{ steps.gitversion.outputs.FullBuildMetaData }}
