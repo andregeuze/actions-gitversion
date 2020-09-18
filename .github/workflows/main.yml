@@ -1,21 +1,18 @@
-name: CI
+name: Continuous Deployment
 
 on:
-  # Pushes will trigger a package build for pre-release
-  # Pull requests will trigger a package build for production
+  # Pushes will trigger a pre-release
   push:
     branches:
       - feature/*
       - hotfix/*
+  # Pull requests will trigger a production release
   pull_request:
     branches:
       - main
 
-env:
-  IS_PRERELEASE: ${{ github.event_name == 'push' }}
-
 jobs:
-  build:
+  build_deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -34,47 +31,24 @@ jobs:
           useConfigFile: "true"
           configFilePath: "${{ github.workspace }}/gitversion.yml"
 
-      - name: Set environment variables based on target branch
+      - name: Set shared variables
         run: |
-          echo ::set-env name=COMMIT_MESSAGE::$(git log -1 HEAD --pretty=format:%s)
+          echo ::set-env name=IS_PRERELEASE::${{ github.event_name == 'push' }}
 
-      - name: Archive Output
-        uses: thedoctor0/zip-release@master
-        with:
-          filename: release.zip
-          directory: src
+      - name: Set environment to test
+        if: env.IS_PRERELEASE
+        run: |
+          echo ::set-env name=ENVIRONMENT::test
 
-      - name: Create Draft Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.gitversion.outputs.SemVer }}
-          release_name: v${{ steps.gitversion.outputs.SemVer }}
-          draft: true
-          prerelease: ${{ env.IS_PRERELEASE }}
-          body: |
-            Version: v${{ steps.gitversion.outputs.SemVer }}
-            Branch name: ${{ steps.gitversion.outputs.EscapedBranchName }}
+      - name: Set environment to live
+        if: env.IS_PRERELEASE == false
+        run: |
+          echo ::set-env name=ENVIRONMENT::live
 
-            InformationalVersion: ${{ steps.gitversion.outputs.InformationalVersion }}
-            FullBuildMetaData: ${{ steps.gitversion.outputs.FullBuildMetaData }}
-
-            Changes:
-            - ${{ env.COMMIT_MESSAGE }}
-
-      - uses: actions/upload-release-asset@v1.0.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: src/release.zip
-          asset_name: release.zip
-          asset_content_type: application/zip
-
-      - uses: eregon/publish-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          release_id: ${{ steps.create_release.outputs.id }}
+      - run: |
+          echo Environment: ${{ env.ENVIRONMENT }}
+          echo Pre-release: ${{ env.IS_PRERELEASE }}
+          echo Version: v${{ steps.gitversion.outputs.SemVer }}
+          echo Branch name: ${{ steps.gitversion.outputs.EscapedBranchName }}
+          echo InformationalVersion: ${{ steps.gitversion.outputs.InformationalVersion }}
+          echo FullBuildMetaData: ${{ steps.gitversion.outputs.FullBuildMetaData }}
