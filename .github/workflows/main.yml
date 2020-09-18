@@ -29,22 +29,22 @@ jobs:
 
       - name: Set shared variables
         run: |
-          echo ::set-env name=IS_PRERELEASE::${{ github.ref != 'refs/heads/main' }}
+          echo ::set-env name=IS_PRE_RELEASE::${{ github.ref != 'refs/heads/main' }}
 
       - name: Set environment to test
-        if: env.IS_PRERELEASE == true
+        if: env.IS_PRE_RELEASE == 'true'
         run: |
           echo ::set-env name=ENVIRONMENT::test
 
       - name: Set environment to live
-        if: env.IS_PRERELEASE == false
+        if: env.IS_PRE_RELEASE == 'false'
         run: |
           echo ::set-env name=ENVIRONMENT::live
 
       - name: Output variables
         run: |
           echo Environment: ${{ env.ENVIRONMENT }}
-          echo Pre-release: ${{ env.IS_PRERELEASE }}
+          echo Pre-release: ${{ env.IS_PRE_RELEASE }}
           echo Version: v${{ steps.gitversion.outputs.SemVer }}
           echo Branch name: ${{ steps.gitversion.outputs.EscapedBranchName }}
           echo InformationalVersion: ${{ steps.gitversion.outputs.InformationalVersion }}
