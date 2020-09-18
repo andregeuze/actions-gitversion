@@ -13,9 +13,9 @@ branches:
     regex: "(minor|feature)[/-]"
     increment: Minor
     tag: useBranchName
-    source-branches: ["feature/*"]
+    source-branches: ["feature"]
   patch:
     regex: "(patch|bugfix|hotfix|fix)[/-]"
     increment: Patch
     tag: useBranchName
-    source-branches: ["hotfix/*"]
+    source-branches: ["hotfix"]
