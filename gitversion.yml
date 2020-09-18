@@ -9,6 +9,7 @@ branches:
     mode: ContinuousDeployment
     tag: ""
     is-mainline: true
+    increment: Inherit
   hotfix:
     mode: ContinuousDeployment
     increment: Patch
