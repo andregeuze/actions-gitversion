@@ -1,15 +1,11 @@
 name: Continuous Deployment
 
 on:
-  # Pushes will trigger a pre-release
   push:
     branches:
+      - main
       - feature/*
       - hotfix/*
-  # Pull requests will trigger a production release
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build_deploy:
@@ -33,7 +29,7 @@ jobs:
 
       - name: Set shared variables
         run: |
-          echo ::set-env name=IS_PRERELEASE::${{ github.event_name == 'push' }}
+          echo ::set-env name=IS_PRERELEASE::${{ github.ref != 'refs/heads/main' }}
 
       - name: Set environment to test
         if: env.IS_PRERELEASE
@@ -45,7 +41,8 @@ jobs:
         run: |
           echo ::set-env name=ENVIRONMENT::live
 
-      - run: |
+      - name: Output variables
+        run: |
           echo Environment: ${{ env.ENVIRONMENT }}
           echo Pre-release: ${{ env.IS_PRERELEASE }}
           echo Version: v${{ steps.gitversion.outputs.SemVer }}
