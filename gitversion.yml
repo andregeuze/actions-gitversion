@@ -2,21 +2,20 @@ next-version: 1.0
 assembly-versioning-scheme: MajorMinorPatchTag
 assembly-file-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: "{MajorMinorPatch}+{BranchName}+{ShortSha}"
-mode: Mainline
+mode: ContinuousDeployment
 branches:
   master:
     regex: (^master$|^origin\/master$|^main$|^origin\/main$)
-    mode: ContinuousDeployment
     tag: ""
     is-mainline: true
     increment: Inherit
-  hotfix:
-    mode: ContinuousDeployment
-    increment: Patch
+  minor:
+    regex: "(minor|feature)[/-]"
+    increment: Minor
     tag: useBranchName
-  feature:
-    mode: ContinuousDeployment
-    increment: Inherit
+  patch:
+    regex: "(patch|bugfix|hotfix|fix)[/-]"
+    increment: Patch
     tag: useBranchName
 ignore:
   sha: []
