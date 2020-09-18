@@ -2,7 +2,7 @@ next-version: 1.0
 assembly-versioning-scheme: MajorMinorPatchTag
 assembly-file-versioning-scheme: MajorMinorPatchTag
 assembly-informational-format: "{MajorMinorPatch}+{BranchName}+{ShortSha}"
-mode: ContinuousDeployment
+mode: Mainline
 branches:
   master:
     regex: (^master$|^origin\/master$|^main$|^origin\/main$)
@@ -19,5 +19,3 @@ branches:
     increment: Patch
     tag: useBranchName
     source-branches: ["hotfix/*"]
-ignore:
-  sha: []
