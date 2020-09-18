@@ -7,7 +7,7 @@ branches:
   master:
     regex: (^master$|^origin\/master$|^main$|^origin\/main$)
     mode: ContinuousDeployment
-    tag: ci
+    tag: ""
     is-mainline: true
   hotfix:
     mode: ContinuousDeployment

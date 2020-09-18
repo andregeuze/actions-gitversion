@@ -32,7 +32,7 @@ jobs:
           echo ::set-env name=IS_PRERELEASE::${{ github.ref != 'refs/heads/main' }}
 
       - name: Set environment to test
-        if: env.IS_PRERELEASE
+        if: env.IS_PRERELEASE == true
         run: |
           echo ::set-env name=ENVIRONMENT::test
 
